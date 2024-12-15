@@ -1,0 +1,818 @@
+definitions:
+  controllers.KodeInput:
+    properties:
+      kode:
+        type: string
+    required:
+    - kode
+    type: object
+  models.Achievement:
+    properties:
+      foto:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      kategori:
+        enum:
+        - International
+        - National
+        - Campus
+        type: string
+      link:
+        type: string
+      nama:
+        type: string
+      pencapaian:
+        type: string
+    required:
+    - kategori
+    type: object
+  models.Activities:
+    properties:
+      gambar:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      tanggal:
+        type: string
+      title:
+        type: string
+    type: object
+  models.News:
+    properties:
+      date:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      isi_konten:
+        type: string
+      kategori:
+        enum:
+        - News
+        - Event
+        type: string
+      link:
+        type: string
+      nama_penulis:
+        type: string
+      thumbnail:
+        type: string
+      title:
+        type: string
+    required:
+    - kategori
+    - nama_penulis
+    - title
+    type: object
+  models.Paper:
+    properties:
+      abstrak:
+        type: string
+      author:
+        type: string
+      file_paper:
+        type: string
+      id:
+        type: integer
+      judul:
+        type: string
+      link:
+        type: string
+      tanggal_terbit:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+paths:
+  /achievements:
+    get:
+      description: Retrieves all achievements from the database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Achievement'
+            type: array
+      summary: Get All Achievement
+      tags:
+      - Achievement
+    post:
+      consumes:
+      - multipart/form-data
+      description: Insert a Achievements and saves them to the database.
+      parameters:
+      - description: Nama peraih achievement
+        in: formData
+        name: nama
+        required: true
+        type: string
+      - description: Pencapaian yang diraih
+        in: formData
+        name: pencapaian
+        required: true
+        type: string
+      - description: link ke Achievementnya
+        in: formData
+        name: link
+        required: true
+        type: string
+      - description: Kategori Achievement
+        in: formData
+        name: kategori
+        required: true
+        type: string
+      - description: Foto peraih Achievement
+        in: formData
+        name: foto
+        required: true
+        type: file
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Achievement'
+      summary: Insert a new Achievement
+      tags:
+      - Achievement
+  /achievements/{id}:
+    delete:
+      description: Delete a Achievements and its thumbnail from the database and storage.
+      parameters:
+      - description: Achievements ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Achievements deleted successfully
+          schema:
+            type: string
+      summary: Delete Achievements
+      tags:
+      - Achievement
+    get:
+      description: Retrieves achievement data by its ID.
+      parameters:
+      - description: achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Get achievement By ID
+      tags:
+      - Achievement
+    put:
+      consumes:
+      - multipart/form-data
+      description: Edits a Achievements by its ID
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Nama peraih achievement
+        in: formData
+        name: nama
+        required: true
+        type: string
+      - description: Pencapaian yang diraih
+        in: formData
+        name: pencapaian
+        required: true
+        type: string
+      - description: link ke Achievementnya
+        in: formData
+        name: link
+        required: true
+        type: string
+      - description: Kategori Achievement
+        in: formData
+        name: kategori
+        required: true
+        type: string
+      - description: Foto peraih Achievement
+        in: formData
+        name: foto
+        required: true
+        type: file
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Achievement'
+      summary: Edit Achievements
+      tags:
+      - Achievement
+  /achievements/category/{category}:
+    get:
+      description: Retrieves Achievements data by its Category.
+      parameters:
+      - description: Achievements Category
+        in: path
+        name: category
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Get All Achievements By Category
+      tags:
+      - Achievement
+  /achievements/foto/{id}:
+    get:
+      description: Retrieves the image of an Achievement by its ID.
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Get Foto Achievement
+      tags:
+      - Achievement
+  /activities:
+    get:
+      description: Retrieves all Activities from the database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Activities'
+            type: array
+      summary: Get All Activities
+      tags:
+      - Activities
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads a Activities along with its file and saves them to the
+        database.
+      parameters:
+      - description: Title Activities
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Tanggal Activities
+        in: formData
+        name: tanggal
+        required: true
+        type: string
+      - description: File gambar
+        in: formData
+        name: gambar
+        required: true
+        type: file
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Activities'
+      summary: Upload an activity with File
+      tags:
+      - Activities
+  /activities/{id}:
+    delete:
+      description: Deletes a Activity and its gambar from the database and storage.
+      parameters:
+      - description: Activity ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Activity deleted successfully
+          schema:
+            type: string
+      summary: Delete Activity
+      tags:
+      - Activities
+    get:
+      description: Retrieves Activity data by its ID.
+      parameters:
+      - description: Activity ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Get Activity By ID
+      tags:
+      - Activities
+    put:
+      consumes:
+      - multipart/form-data
+      description: Edits a Activity including the ability to replace its file.
+      parameters:
+      - description: Activity ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Title Activity
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Tanggal Activity
+        in: formData
+        name: tanggal
+        required: true
+        type: string
+      - description: Gambar Activity (optional)
+        in: formData
+        name: gambar
+        type: file
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Activities'
+      summary: Edit Activity
+      tags:
+      - Activities
+  /activities/file/{id}:
+    get:
+      description: Retrieves the image of a activity by its ID.
+      parameters:
+      - description: Activity ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Get Gambar Activity
+      tags:
+      - Activities
+  /login-admin:
+    post:
+      description: Logging in to get jwt token to access admin or user api by roles.
+      parameters:
+      - description: the body to login a admin
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.KodeInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login as as admin.
+      tags:
+      - Auth
+  /news:
+    get:
+      description: Retrieves all news from the database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.News'
+            type: array
+      summary: Get All News
+      tags:
+      - News
+    post:
+      consumes:
+      - multipart/form-data
+      description: Insert a news and saves them to the database.
+      parameters:
+      - description: Judul news
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Kategori news
+        in: formData
+        name: kategori
+        required: true
+        type: string
+      - description: Thumbnail news
+        in: formData
+        name: thumbnail
+        required: true
+        type: file
+      - description: Isi konten news
+        in: formData
+        name: isi_konten
+        required: true
+        type: string
+      - description: Nama penulis news
+        in: formData
+        name: nama_penulis
+        required: true
+        type: string
+      - description: Link news
+        in: formData
+        name: link
+        required: true
+        type: string
+      - description: Date news
+        in: formData
+        name: date
+        required: true
+        type: string
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.News'
+      summary: Insert a new news
+      tags:
+      - News
+  /news/{id}:
+    delete:
+      description: Delete a News and its thumbnail from the database and storage.
+      parameters:
+      - description: News ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: News deleted successfully
+          schema:
+            type: string
+      summary: Delete News
+      tags:
+      - News
+    get:
+      description: Retrieves news data by its ID.
+      parameters:
+      - description: News ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Get News By ID
+      tags:
+      - News
+    put:
+      consumes:
+      - multipart/form-data
+      description: Edits a News by its ID
+      parameters:
+      - description: News ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Title News
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Kategori News
+        in: formData
+        name: kategori
+        required: true
+        type: string
+      - description: Thumbnail News
+        in: formData
+        name: thumbnail
+        type: file
+      - description: Isi Konten News
+        in: formData
+        name: isi_konten
+        required: true
+        type: string
+      - description: Nama Penulis News
+        in: formData
+        name: nama_penulis
+        required: true
+        type: string
+      - description: Link News
+        in: formData
+        name: link
+        required: true
+        type: string
+      - description: Date News
+        in: formData
+        name: date
+        required: true
+        type: string
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.News'
+      summary: Edit News
+      tags:
+      - News
+  /news/category/{category}:
+    get:
+      description: Retrieves news data by its Category.
+      parameters:
+      - description: News Category
+        in: path
+        name: category
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Get All News By Category
+      tags:
+      - News
+  /news/file/{id}:
+    get:
+      description: Retrieves the image of a News by its ID.
+      parameters:
+      - description: News ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Get Thumbnail News
+      tags:
+      - News
+  /papers:
+    get:
+      description: Retrieves all papers from the database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Paper'
+            type: array
+      summary: Get All Papers
+      tags:
+      - Papers
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads a paper along with its file and saves them to the database.
+      parameters:
+      - description: Judul paper
+        in: formData
+        name: judul
+        required: true
+        type: string
+      - description: Abstrak paper
+        in: formData
+        name: abstrak
+        required: true
+        type: string
+      - description: Link paper
+        in: formData
+        name: link
+        required: true
+        type: string
+      - description: File paper
+        in: formData
+        name: file_paper
+        required: true
+        type: file
+      - description: Author paper
+        in: formData
+        name: author
+        required: true
+        type: string
+      - description: Tanggal terbit paper
+        in: formData
+        name: tanggal_terbit
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Paper'
+      summary: Upload Paper with File
+      tags:
+      - Papers
+  /papers/{id}:
+    delete:
+      description: Deletes a paper and its file from the database and storage.
+      parameters:
+      - description: Paper ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paper deleted successfully
+          schema:
+            type: string
+      summary: Delete Paper
+      tags:
+      - Papers
+    put:
+      consumes:
+      - multipart/form-data
+      description: Edits a paper including the ability to replace its file.
+      parameters:
+      - description: Paper ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Judul paper
+        in: formData
+        name: judul
+        required: true
+        type: string
+      - description: Abstrak paper
+        in: formData
+        name: abstrak
+        required: true
+        type: string
+      - description: Link paper
+        in: formData
+        name: link
+        required: true
+        type: string
+      - description: File paper (optional)
+        in: formData
+        name: file_paper
+        type: file
+      - description: Author paper
+        in: formData
+        name: author
+        required: true
+        type: string
+      - description: Tanggal terbit paper
+        in: formData
+        name: tanggal_terbit
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Paper'
+      summary: Edit Paper
+      tags:
+      - Papers
+  /papers/file/{id}:
+    get:
+      description: Retrieves the file of a paper by its ID.
+      parameters:
+      - description: Paper ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Get Paper File
+      tags:
+      - Papers
+swagger: "2.0"

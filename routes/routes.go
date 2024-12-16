@@ -1,79 +1,47 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-
 	"backend/controllers"
 	"backend/middlewares"
-
-	swaggerFiles "github.com/swaggo/files" // swagger embed files
-	ginSwagger "github.com/swaggo/gin-swagger"
+	"backend/repositories"
+	"backend/services"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-func SetupRouter(db *gorm.DB) *gin.Engine {
-	r := gin.Default()
+// SetupRouter mengatur semua rute utama aplikasi
+func SetupRouter(router *gin.Engine, db *gorm.DB) {
+	// Middleware global
+	router.Use(gin.Logger())
+	router.Use(gin.Recovery())
 
-	r.Use(func(c *gin.Context) {
-		c.Set("db", db)
-	})
+	// Inisialisasi service dan controller untuk Authentication
+	authRepo := repositories.NewUserRepository(db)
+	authService := services.NewAuthAdminService(authRepo)
+	authController := controllers.NewAuthAdminController(authService)
 
-	paperController := &controllers.PaperController{DB: db}
-	activityController := &controllers.ActivitiesController{DB: db}
-	achievementController := &controllers.AchievementsController{DB: db}
-	newsController := &controllers.NewsController{DB: db}
-	r.Use(middlewares.CorsMiddleware())
+	// Inisialisasi repository dan service untuk Activities
+	activityRepo := repositories.NewActivityRepository(db)       // Inisialisasi repository terlebih dahulu
+	activityService := services.NewActivityService(activityRepo) // Gunakan repository untuk service
+	activityController := controllers.NewActivitiesController(activityService)
 
-	// Jika bukan GET , Cek token dulu
-	r.Use(func(c *gin.Context) {
-		if c.Request.Method != "GET" && c.Request.URL.Path != "/login-admin" {
-			middlewares.AdminCheckMiddleware()(c)
-		}
-		c.Next()
-	})
+	// Inisialisasi repository dan service untuk News
+	newsRepo := repositories.NewNewsRepository(db)
+	newsService := services.NewNewsService(newsRepo)
+	newsController := controllers.NewNewsController(newsService)
 
-	r.POST("/login-admin", controllers.LoginAdmin)
+	// Pendaftaran routes modular
+	RegisterAuthRoutes(router, authController)
+	RegisterActivityRoutes(router, activityController)
+	RegisterNewsRoutes(router, newsController)
 
-	r.GET("/papers", paperController.GetAllPapers)
-	r.GET("/papers/file/:id", paperController.GetPaperFile)
-
-	//activitiy
-	r.GET("/activities", activityController.GetAllActivities)
-	r.GET("/activities/:id", activityController.GetActivityById)
-	r.GET("/activities/file/:id", activityController.GetGambarActivities)
-	//news
-	r.GET("/news", newsController.GetAllNews)
-	r.GET("/news/:id", newsController.GetNewsById)
-	r.GET("/news/file/:id", newsController.GetThumbnailNews)
-	r.GET("/news/category/:category", newsController.GetNewsByCategory)
-
-	//achievement
-	r.GET("/achievements", achievementController.GetAllAchievement)
-	r.GET("/achievements/:id", achievementController.GetAchievementById)
-	r.GET("/achievements/foto/:id", achievementController.GetFotoAchievement)
-	r.GET("/achievements/category/:category", achievementController.GetAchievementsByCategory)
-
-	//papers
-	r.POST("/papers", paperController.UploadPaper)
-	r.PUT("/papers/:id", paperController.EditPaper)
-	r.DELETE("/papers/:id", paperController.DeletePaper)
-
-	//activities
-	r.POST("/activities", activityController.UploadActivity)
-	r.DELETE("/activities/:id", activityController.DeleteActivity)
-	r.PUT("/activities/:id", activityController.EditActivity)
-
-	//news
-	r.POST("/news", newsController.InsertNews)
-	r.PUT("/news/:id", newsController.EditNews)
-	r.DELETE("/news/:id", newsController.DeleteNews)
-
-	//achievements
-	r.POST("/achievements", achievementController.InsertAchievement)
-	r.PUT("/achievements/:id", achievementController.EditAchievements)
-	r.DELETE("/achievements/:id", achievementController.DeleteAchievements)
-
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("/swagger/doc.json")))
-	r.Static("/uploads", "./uploads")
-	return r
+	// Middleware tambahan (contoh: middleware autentikasi untuk protected routes)
+	protected := router.Group("/protected")
+	protected.Use(middlewares.AuthMiddleware()) // Hanya untuk rute yang membutuhkan autentikasi
+	{
+		// Misalnya, kita ingin menambahkan rute yang memerlukan autentikasi
+		protected.GET("/secure-data", func(ctx *gin.Context) {
+			ctx.JSON(200, gin.H{"message": "This is protected data!"})
+		})
+	}
 }

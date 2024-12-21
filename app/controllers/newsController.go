@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"backend/models"
+	"backend/app/models"
 	"backend/utils"
 	"encoding/json"
 	"fmt"
@@ -15,15 +15,15 @@ import (
 )
 
 type NewsResponse struct {
-	ID          uint            `json:"id"`
-	Title       string          `json:"title"`
-	Kategori    string          `json:"kategori"`
-	Thumbnail   string          `json:"thumbnail"`
-	IsiKonten   interface{}     `json:"isi_konten"` 
-	NamaPenulis string          `json:"nama_penulis"`
-	Link        string          `json:"link"`
-	ImageURL    string          `json:"image_url"`
-	Date        string          `json:"date"`
+	ID          uint        `json:"id"`
+	Title       string      `json:"title"`
+	Kategori    string      `json:"kategori"`
+	Thumbnail   string      `json:"thumbnail"`
+	IsiKonten   interface{} `json:"isi_konten"`
+	NamaPenulis string      `json:"nama_penulis"`
+	Link        string      `json:"link"`
+	ImageURL    string      `json:"image_url"`
+	Date        string      `json:"date"`
 }
 
 type NewsController struct {
@@ -113,6 +113,7 @@ func (nc *NewsController) GetNewsById(ctx *gin.Context) {
 	// Response with news
 	ctx.JSON(http.StatusOK, response)
 }
+
 // GetThumbnailNews adalah fungsi untuk mengambil Thumbnail News berdasarkan ID.
 // @Summary Get Thumbnail News
 // @Description Retrieves the image of a News by its ID.
@@ -174,40 +175,40 @@ func (nc *NewsController) GetThumbnailNews(ctx *gin.Context) {
 // @Success 200 {array} NewsResponse
 // @Router /news/category/{category} [get]
 func (nc *NewsController) GetNewsByCategory(ctx *gin.Context) {
-    // Get news category from URL path parameter
-    newsCategory := ctx.Param("category")
+	// Get news category from URL path parameter
+	newsCategory := ctx.Param("category")
 
-    // Retrieve all news from the database with the specified category
-    var newsList []models.News
-    if err := nc.DB.Where("kategori = ?", newsCategory).Find(&newsList).Error; err != nil {
-        ctx.JSON(http.StatusNotFound, gin.H{"error": "News not found"})
-        return
-    }
+	// Retrieve all news from the database with the specified category
+	var newsList []models.News
+	if err := nc.DB.Where("kategori = ?", newsCategory).Find(&newsList).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "News not found"})
+		return
+	}
 
-    // Prepare the response
-    var response []NewsResponse
-    for _, news := range newsList {
-        var isiKontenDecoded interface{}
-        if err := json.Unmarshal([]byte(news.IsiKonten), &isiKontenDecoded); err != nil {
-            ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode isi_konten"})
-            return
-        }
+	// Prepare the response
+	var response []NewsResponse
+	for _, news := range newsList {
+		var isiKontenDecoded interface{}
+		if err := json.Unmarshal([]byte(news.IsiKonten), &isiKontenDecoded); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode isi_konten"})
+			return
+		}
 
-        response = append(response, NewsResponse{
-            ID:          news.ID,
-            Title:       news.Title,
-            Kategori:    news.Kategori,
-            Thumbnail:   news.Thumbnail,
-            IsiKonten:   isiKontenDecoded,
-            NamaPenulis: news.NamaPenulis,
-            Link:        news.Link,
-            ImageURL:    news.ImageURL,
-            Date:        news.Date,
-        })
-    }
+		response = append(response, NewsResponse{
+			ID:          news.ID,
+			Title:       news.Title,
+			Kategori:    news.Kategori,
+			Thumbnail:   news.Thumbnail,
+			IsiKonten:   isiKontenDecoded,
+			NamaPenulis: news.NamaPenulis,
+			Link:        news.Link,
+			ImageURL:    news.ImageURL,
+			Date:        news.Date,
+		})
+	}
 
-    // Response with list of news
-    ctx.JSON(http.StatusOK, response)
+	// Response with list of news
+	ctx.JSON(http.StatusOK, response)
 }
 
 // InsertNews adalah fungsi untuk membuat post news terbaru.
@@ -323,6 +324,7 @@ func (nc *NewsController) InsertNews(ctx *gin.Context) {
 // @Produce json
 // @Success 200 {object} models.News
 // @Router /news/{id} [put]
+
 func (nc *NewsController) EditNews(ctx *gin.Context) {
 	// Get news ID from URL path parameter
 	newsID := ctx.Param("id")
@@ -340,20 +342,20 @@ func (nc *NewsController) EditNews(ctx *gin.Context) {
 	news.Date = ctx.PostForm("date")
 	isiKonten := ctx.PostForm("isi_konten")
 
-    if isiKonten != "" {
-        var isiKontenJSON interface{}
-        if err := json.Unmarshal([]byte(isiKonten), &isiKontenJSON); err != nil {
-            ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format for isi_konten"})
-            return
-        }
+	if isiKonten != "" {
+		var isiKontenJSON interface{}
+		if err := json.Unmarshal([]byte(isiKonten), &isiKontenJSON); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format for isi_konten"})
+			return
+		}
 
-        isiKontenBytes, err := json.Marshal(isiKontenJSON)
-        if err != nil {
-            ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process isi_konten"})
-            return
-        }
-        news.IsiKonten = string(isiKontenBytes)
-    }
+		isiKontenBytes, err := json.Marshal(isiKontenJSON)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process isi_konten"})
+			return
+		}
+		news.IsiKonten = string(isiKontenBytes)
+	}
 	news.NamaPenulis = ctx.PostForm("nama_penulis")
 	news.Link = ctx.PostForm("link")
 

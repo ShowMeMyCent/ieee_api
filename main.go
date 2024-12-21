@@ -38,6 +38,6 @@ func main() {
 	db := config.ConnectDatabase()
 
 	// Create a new gin router with default middleware
-	r := routes.SetupRouter(db)
+	r := routes.InitRouter(db)
 	r.Run()
 }

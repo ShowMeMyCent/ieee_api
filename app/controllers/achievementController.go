@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"backend/models"
+	"backend/app/models"
 	"backend/utils"
 	"fmt"
 	"net/http"
@@ -25,7 +25,7 @@ type AchievementsController struct {
 // @Success 200 {array} models.Achievement
 // @Router /achievements [get]
 func (ac *AchievementsController) GetAllAchievement(ctx *gin.Context) {
-	var achievements[]models.Achievement
+	var achievements []models.Achievement
 
 	// Retrieve all achievementsfrom the database
 	if err := ac.DB.Find(&achievements).Error; err != nil {
@@ -151,48 +151,48 @@ func (ac *AchievementsController) GetAchievementsByCategory(ctx *gin.Context) {
 // @Success 200 {object} models.Achievement
 // @Router /achievements [post]
 func (ac *AchievementsController) InsertAchievement(ctx *gin.Context) {
-    // Get the file from the form data
-    file, err := ctx.FormFile("foto")
-    if err != nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	// Get the file from the form data
+	file, err := ctx.FormFile("foto")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	host := utils.Getenv("ENV_HOST", "localhost")
 
-    // Define the path where the file will be saved, pake UUID, untuk skg taro di uploads dlu
-    fileName := uuid.New().String() + filepath.Ext(file.Filename)
-    filePath := filepath.Join("uploads", fileName)
+	// Define the path where the file will be saved, pake UUID, untuk skg taro di uploads dlu
+	fileName := uuid.New().String() + filepath.Ext(file.Filename)
+	filePath := filepath.Join("uploads", fileName)
 
-    // Validate input data using struct tags
-    var achievements models.Achievement
-    achievements.Nama = ctx.PostForm("nama")
-    achievements.Pencapaian = ctx.PostForm("pencapaian")
-    achievements.Link = ctx.PostForm("link")
-    achievements.Kategori = ctx.PostForm("kategori")
-    achievements.Foto = fileName
-    achievements.ImageURL = fmt.Sprintf("https://%s/uploads/%s", host, fileName)
+	// Validate input data using struct tags
+	var achievements models.Achievement
+	achievements.Nama = ctx.PostForm("nama")
+	achievements.Pencapaian = ctx.PostForm("pencapaian")
+	achievements.Link = ctx.PostForm("link")
+	achievements.Kategori = ctx.PostForm("kategori")
+	achievements.Foto = fileName
+	achievements.ImageURL = fmt.Sprintf("https://%s/uploads/%s", host, fileName)
 
-    // Validate the achievements struct
-    validationErrors := utils.ValidateStruct(achievements)
-    if len(validationErrors) > 0 {
-        // Return validation errors without saving the file
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": validationErrors})
-        return
-    }
+	// Validate the achievements struct
+	validationErrors := utils.ValidateStruct(achievements)
+	if len(validationErrors) > 0 {
+		// Return validation errors without saving the file
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": validationErrors})
+		return
+	}
 
-    // Save the file to the defined path
-    if err := ctx.SaveUploadedFile(file, filePath); err != nil {
-        ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
-        return
-    }
+	// Save the file to the defined path
+	if err := ctx.SaveUploadedFile(file, filePath); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+		return
+	}
 
-    // Save achievement to database
-    if err := ac.DB.Create(&achievements).Error; err != nil {
-        ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save achievement to database"})
-        return
-    }
+	// Save achievement to database
+	if err := ac.DB.Create(&achievements).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save achievement to database"})
+		return
+	}
 
-    ctx.JSON(http.StatusOK, achievements)
+	ctx.JSON(http.StatusOK, achievements)
 }
 
 // EditAchievements adalah fungsi untuk mengedit Achievements
@@ -211,61 +211,61 @@ func (ac *AchievementsController) InsertAchievement(ctx *gin.Context) {
 // @Success 200 {object} models.Achievement
 // @Router /achievements/{id} [put]
 func (ac *AchievementsController) EditAchievements(ctx *gin.Context) {
-    // Get achievement ID from URL path parameter
-    achievementsID := ctx.Param("id")
+	// Get achievement ID from URL path parameter
+	achievementsID := ctx.Param("id")
 
-    // Retrieve achievement from the database by its ID
-    var achievements models.Achievement
-    if err := ac.DB.Where("id = ?", achievementsID).First(&achievements).Error; err != nil {
-        ctx.JSON(http.StatusNotFound, gin.H{"error": "achievements not found"})
-        return
-    }
+	// Retrieve achievement from the database by its ID
+	var achievements models.Achievement
+	if err := ac.DB.Where("id = ?", achievementsID).First(&achievements).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "achievements not found"})
+		return
+	}
 
-    // Update achievements fields from form data
-    achievements.Nama = ctx.PostForm("nama")
-    achievements.Pencapaian = ctx.PostForm("pencapaian")
-    achievements.Link = ctx.PostForm("link")
-    achievements.Kategori = ctx.PostForm("kategori")
+	// Update achievements fields from form data
+	achievements.Nama = ctx.PostForm("nama")
+	achievements.Pencapaian = ctx.PostForm("pencapaian")
+	achievements.Link = ctx.PostForm("link")
+	achievements.Kategori = ctx.PostForm("kategori")
 
-    // Validate the achievement struct
-    validationErrors := utils.ValidateStruct(achievements)
-    if len(validationErrors) > 0 {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": validationErrors})
-        return
-    }
+	// Validate the achievement struct
+	validationErrors := utils.ValidateStruct(achievements)
+	if len(validationErrors) > 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": validationErrors})
+		return
+	}
 
-    // Update the file if a new one is uploaded
-    file, err := ctx.FormFile("foto")
-    if err == nil {
-        // Define the path where the new file will be saved
-        fileName := uuid.New().String() + filepath.Ext(file.Filename)
-        filePath := filepath.Join("uploads", fileName)
+	// Update the file if a new one is uploaded
+	file, err := ctx.FormFile("foto")
+	if err == nil {
+		// Define the path where the new file will be saved
+		fileName := uuid.New().String() + filepath.Ext(file.Filename)
+		filePath := filepath.Join("uploads", fileName)
 
-        // Save the new file to the defined path
-        if err := ctx.SaveUploadedFile(file, filePath); err != nil {
-            ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
-            return
-        }
+		// Save the new file to the defined path
+		if err := ctx.SaveUploadedFile(file, filePath); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+			return
+		}
 
-        // Delete the old file
-        oldFilePath := filepath.Join("uploads", achievements.Foto)
-        if err := os.Remove(oldFilePath); err != nil {
-            ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete old file"})
-            return
-        }
+		// Delete the old file
+		oldFilePath := filepath.Join("uploads", achievements.Foto)
+		if err := os.Remove(oldFilePath); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete old file"})
+			return
+		}
 
-        // Update the Foto field with the new file name and update ImageURL
-        achievements.Foto = fileName
-        achievements.ImageURL = fmt.Sprintf("http://localhost:8080/uploads/%s", fileName)
-    }
+		// Update the Foto field with the new file name and update ImageURL
+		achievements.Foto = fileName
+		achievements.ImageURL = fmt.Sprintf("http://localhost:8080/uploads/%s", fileName)
+	}
 
-    // Save updated achievement to the database
-    if err := ac.DB.Save(&achievements).Error; err != nil {
-        ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update achievements in database"})
-        return
-    }
+	// Save updated achievement to the database
+	if err := ac.DB.Save(&achievements).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update achievements in database"})
+		return
+	}
 
-    ctx.JSON(http.StatusOK, achievements)
+	ctx.JSON(http.StatusOK, achievements)
 }
 
 // DeleteAchievements adalah fungsi untuk menghapus Achievements dan gambar-nya dari database.

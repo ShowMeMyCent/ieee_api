@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"backend/models"
+	"backend/app/models"
 	"backend/utils"
 	"fmt"
 	"net/http"
@@ -32,42 +32,42 @@ type ActivitiesController struct {
 // @Success 200 {object} models.Activities
 // @Router /activities [post]
 func (ac *ActivitiesController) UploadActivity(ctx *gin.Context) {
-    // Get the file from the form data
-    file, err := ctx.FormFile("gambar")
-    if err != nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	// Get the file from the form data
+	file, err := ctx.FormFile("gambar")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	host := utils.Getenv("ENV_HOST", "localhost")
 
-    // Define the path where the file will be saved, pake UUID, untuk skg taro di uploads dlu
-    fileName := uuid.New().String() + filepath.Ext(file.Filename)
-    filePath := filepath.Join("uploads", fileName)
+	// Define the path where the file will be saved, pake UUID, untuk skg taro di uploads dlu
+	fileName := uuid.New().String() + filepath.Ext(file.Filename)
+	filePath := filepath.Join("uploads", fileName)
 
-    // Save the file to the defined path
-    if err := ctx.SaveUploadedFile(file, filePath); err != nil {
-        ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
-        return
-    }
+	// Save the file to the defined path
+	if err := ctx.SaveUploadedFile(file, filePath); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+		return
+	}
 
-    title := ctx.PostForm("title")
-    tanggal := ctx.PostForm("tanggal")
+	title := ctx.PostForm("title")
+	tanggal := ctx.PostForm("tanggal")
 
-    // Create Activity object
-    activity := models.Activities{
-        Title:    title,
-        Tanggal:  tanggal,
-        Gambar:   fileName,
-        ImageURL: fmt.Sprintf("https://%s/uploads/%s", host, fileName),
-    }
+	// Create Activity object
+	activity := models.Activities{
+		Title:    title,
+		Tanggal:  tanggal,
+		Gambar:   fileName,
+		ImageURL: fmt.Sprintf("https://%s/uploads/%s", host, fileName),
+	}
 
-    // Save activity to database
-    if err := ac.DB.Create(&activity).Error; err != nil {
-        ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save activity to database"})
-        return
-    }
+	// Save activity to database
+	if err := ac.DB.Create(&activity).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save activity to database"})
+		return
+	}
 
-    ctx.JSON(http.StatusOK, activity)
+	ctx.JSON(http.StatusOK, activity)
 }
 
 // GetAllActivities adalah fungsi untuk mendapatkan semua activity dari database.
@@ -180,61 +180,61 @@ func (ac *ActivitiesController) GetGambarActivities(ctx *gin.Context) {
 // @Success 200 {object} models.Activities
 // @Router /activities/{id} [put]
 func (ac *ActivitiesController) EditActivity(ctx *gin.Context) {
-    // Get activity ID from URL path parameter
-    activityID := ctx.Param("id")
+	// Get activity ID from URL path parameter
+	activityID := ctx.Param("id")
 
-    // Retrieve activity from the database by its ID
-    var activity models.Activities
-    if err := ac.DB.Where("id = ?", activityID).First(&activity).Error; err != nil {
-        ctx.JSON(http.StatusNotFound, gin.H{"error": "Activity not found"})
-        return
-    }
+	// Retrieve activity from the database by its ID
+	var activity models.Activities
+	if err := ac.DB.Where("id = ?", activityID).First(&activity).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Activity not found"})
+		return
+	}
 
-    title := ctx.PostForm("title")
-    tanggal := ctx.PostForm("tanggal")
+	title := ctx.PostForm("title")
+	tanggal := ctx.PostForm("tanggal")
 	host := utils.Getenv("ENV_HOST", "localhost")
 
-    activity.Title = title
-    activity.Tanggal = tanggal
+	activity.Title = title
+	activity.Tanggal = tanggal
 
-    // Cek apakah file diganti
-    file, err := ctx.FormFile("gambar")
-    if err != nil && err != http.ErrMissingFile {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	// Cek apakah file diganti
+	file, err := ctx.FormFile("gambar")
+	if err != nil && err != http.ErrMissingFile {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-    // Jika iya, maka di save
-    if file != nil {
-        // Tentuin tempat nge save
-        fileName := uuid.New().String() + filepath.Ext(file.Filename)
-        filePath := filepath.Join("uploads", fileName)
+	// Jika iya, maka di save
+	if file != nil {
+		// Tentuin tempat nge save
+		fileName := uuid.New().String() + filepath.Ext(file.Filename)
+		filePath := filepath.Join("uploads", fileName)
 
-        // Save the file to the path
-        if err := ctx.SaveUploadedFile(file, filePath); err != nil {
-            ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
-            return
-        }
+		// Save the file to the path
+		if err := ctx.SaveUploadedFile(file, filePath); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+			return
+		}
 
-        // Remove old file
-        oldFilePath := filepath.Join("uploads", activity.Gambar)
-        if err := os.Remove(oldFilePath); err != nil {
-            ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove old file"})
-        }
+		// Remove old file
+		oldFilePath := filepath.Join("uploads", activity.Gambar)
+		if err := os.Remove(oldFilePath); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove old file"})
+		}
 
-        // Update file gambar field in the database
-        activity.Gambar = fileName
-        activity.ImageURL = fmt.Sprintf("https://%s/uploads/%s", host, fileName)
-    }
+		// Update file gambar field in the database
+		activity.Gambar = fileName
+		activity.ImageURL = fmt.Sprintf("https://%s/uploads/%s", host, fileName)
+	}
 
-    // Save updated activity to database
-    if err := ac.DB.Save(&activity).Error; err != nil {
-        ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save updated activity to database"})
-        return
-    }
+	// Save updated activity to database
+	if err := ac.DB.Save(&activity).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save updated activity to database"})
+		return
+	}
 
-    // Response success
-    ctx.JSON(http.StatusOK, activity)
+	// Response success
+	ctx.JSON(http.StatusOK, activity)
 }
 
 // DeleteActivity adalah fungsi untuk menghapus Activity dan gambar-nya dari database.

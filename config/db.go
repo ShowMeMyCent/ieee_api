@@ -1,7 +1,7 @@
 package config
 
 import (
-	"backend/models"
+	"backend/app/models"
 	"backend/utils"
 	"fmt"
 	"gorm.io/driver/mysql"
@@ -27,7 +27,7 @@ func ConnectDatabase() *gorm.DB {
 		panic(err.Error())
 	}
 
-	db.AutoMigrate(&models.Paper{}, &models.Achievement{}, &models.Activities{}, &models.News{}, &models.User{})
+	db.AutoMigrate(&models.Achievement{}, &models.Activities{}, &models.News{}, &models.User{})
 
 	return db
 }

@@ -1,7 +1,8 @@
+// app/controllers/authAdmin.go
 package controllers
 
 import (
-	"backend/models"
+	"backend/app/services"
 	"fmt"
 	"net/http"
 
@@ -30,10 +31,7 @@ func LoginAdmin(c *gin.Context) {
 		return
 	}
 
-	u := models.User{}
-	u.Code = input.Kode
-
-	token, err := u.LoginCheckAdmin(db)
+	token, err := services.LoginCheckAdmin(db, input.Kode)
 
 	if err != nil {
 		fmt.Println(err)
@@ -42,9 +40,8 @@ func LoginAdmin(c *gin.Context) {
 	}
 
 	admin := map[string]string{
-		"kode": u.Code,
+		"kode": input.Kode,
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "login success", "user": admin, "token": token})
-
 }

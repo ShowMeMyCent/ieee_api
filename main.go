@@ -1,58 +1,43 @@
 package main
 
 import (
-	"backend/config"
-	"backend/controllers"
-	"backend/repositories"
-	"backend/routes"
-	"backend/services"
-	"backend/utils"
-	"fmt"
 	"log"
 
-	"github.com/gin-gonic/gin"
+	"backend/config"
+	"backend/docs"
+	"backend/routes"
+	"backend/utils"
+
 	"github.com/joho/godotenv"
 )
 
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @termsOfService http://swagger.io/terms/
+
 func main() {
-	// Load environment variables
-	if err := godotenv.Load(".env"); err != nil {
+	// Load environment variables from .env file
+	err := godotenv.Load(".env")
+	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	// Connect to the database
+	docs.SwaggerInfo.Title = "Swagger Files API"
+	docs.SwaggerInfo.Description = "This is a simple Files."
+	docs.SwaggerInfo.Version = "1.0"
+	envHost := utils.Getenv("ENV_HOST", "localhost:8080")
+	docs.SwaggerInfo.Host = envHost
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+
+	// Get the global database instance
 	db := config.ConnectDatabase()
-	if db == nil {
-		log.Fatal("Failed to connect to the database")
-	}
 
-	// Initialize Gin router
-	router := gin.Default()
-
-	// Initialize repositories and services
-	userRepo := repositories.NewUserRepository(db)
-	authService := services.NewAuthAdminService(userRepo)
-	authController := controllers.NewAuthAdminController(authService)
-
-	activityService := services.NewActivityService(db)
-	activityController := controllers.NewActivitiesController(activityService)
-
-	newsRepo := repositories.NewNewsRepository(db)
-	newsService := services.NewNewsService(newsRepo)
-	newsController := controllers.NewNewsController(newsService)
-
-	// Setup routes
-	routes.RegisterAuthRoutes(router, authController)
-	routes.RegisterActivityRoutes(router, activityController)
-	routes.RegisterNewsRoutes(router, newsController)
-
-	// Run the server
-	host := utils.Getenv("ENV_HOST", "localhost")
-	port := utils.Getenv("ENV_PORT", "8080")
-	serverAddr := fmt.Sprintf("%s:%s", host, port)
-
-	log.Printf("Server is running on %s", serverAddr)
-	if err := router.Run(serverAddr); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
-	}
+	// Create a new gin router with default middleware
+	r := routes.InitRouter(db)
+	r.Run()
 }

@@ -5,15 +5,12 @@ import (
 	"backend/app/services"
 	"backend/utils"
 	"fmt"
-	"net/http"
-	"os"
-
 	"github.com/gin-gonic/gin"
-
-	"path/filepath"
-
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"net/http"
+	"os"
+	"path/filepath"
 )
 
 type ActivitiesController struct {

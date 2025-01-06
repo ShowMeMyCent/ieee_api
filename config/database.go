@@ -1,7 +1,6 @@
 package config
 
 import (
-	"backend/models"
 	"backend/utils"
 	"fmt"
 	"gorm.io/driver/mysql"
@@ -51,18 +50,4 @@ func ConnectDatabase() *gorm.DB {
 	AutoMigrate(db)
 
 	return db
-}
-
-// AutoMigrate performs automatic migration of database schema
-func AutoMigrate(db *gorm.DB) {
-	// Run migrations for the models
-	err := db.AutoMigrate(
-		&models.Achievement{},
-		&models.Activities{},
-		&models.News{},
-		&models.User{},
-	)
-	if err != nil {
-		log.Fatal("Failed to auto migrate: ", err)
-	}
 }

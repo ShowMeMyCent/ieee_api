@@ -1,13 +1,11 @@
 package routes
 
 import (
-	"backend/controllers"
+	"backend/app/controllers"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-func RegisterAuthRoutes(router *gin.Engine, authController *controllers.AuthAdminController) {
-	auth := router.Group("/auth")
-	{
-		auth.POST("/login-admin", authController.LoginAdmin)
-	}
+func RegisterAuthRoutes(r *gin.Engine, db *gorm.DB) {
+	r.POST("/login-admin", controllers.LoginAdmin)
 }

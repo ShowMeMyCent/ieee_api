@@ -13,8 +13,8 @@ func AutoMigrate(db *gorm.DB) {
 		&models.Achievement{},
 		&models.Activities{},
 		&models.News{},
+		//&models.User{},
 		&models.User{},
-		&models.Members{},
 	)
 	if err != nil {
 		log.Fatal("Failed to auto migrate: ", err)

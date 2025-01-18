@@ -5,28 +5,32 @@ import (
 	"gorm.io/gorm"
 )
 
-type MembersRepository struct {
+type UsersRepository struct {
 	DB *gorm.DB
 }
 
-func (mr *MembersRepository) GetMembers() ([]models.Members, error) {
-	var members []models.Members
-	if err := mr.DB.Find(&members).Error; err != nil {
+func (mr *UsersRepository) GetUsers() ([]models.User, error) {
+	var Users []models.User
+	if err := mr.DB.Find(&Users).Error; err != nil {
 		return nil, err
 	}
-	return members, nil
+	return Users, nil
 }
 
-func (mr *MembersRepository) GetMembersById(id string) (*models.Members, error) {
-	var member models.Members
-	err := mr.DB.Where("id = ?", id).First(&member).Error
-	return &member, err
+func (mr *UsersRepository) GetUsersById(id string) (*models.User, error) {
+	var user models.User
+	err := mr.DB.Where("id = ?", id).First(&user).Error
+	return &user, err
 }
 
-func (mr *MembersRepository) CreateMembers(members *models.Members) error {
-	return mr.DB.Create(members).Error
+func (mr *UsersRepository) CreateUsers(Users *models.User) error {
+	return mr.DB.Create(Users).Error
 }
 
-func (mr *MembersRepository) UpdateMembers(members *models.Members) error {
-	return mr.DB.Save(members).Error
+func (mr *UsersRepository) UpdateUser(Users *models.User) error {
+	return mr.DB.Save(Users).Error
+}
+
+func (mr *UsersRepository) DeleteUser(id string) error {
+	return mr.DB.Where("id = ?", id).Delete(&models.User{}).Error
 }

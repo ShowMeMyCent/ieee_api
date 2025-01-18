@@ -29,6 +29,7 @@ func InitRouter(db *gorm.DB) *gin.Engine {
 	RegisterActivityRoutes(r, db)
 	RegisterNewsRoutes(r, db)
 	RegisterAchievementRoutes(r, db)
+	RegisterMemberRoutes(r, db)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("/swagger/doc.json")))
 	r.Static("/uploads", "./uploads")

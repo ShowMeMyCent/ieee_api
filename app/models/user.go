@@ -1,40 +1,27 @@
 package models
 
-import (
-	"backend/utils/token"
-	"errors"
+type User struct {
+	ID       uint   `json:"id" gorm:"primaryKey;autoIncrement:true"`
+	Name     string `json:"name" binding:"required"`
+	Email    string `json:"email" binding:"required,email" gorm:"unique"`
+	Password string `json:"-" binding:"required"`
+	Role     Role   `json:"role" gorm:"type:enum('super_admin' ,'admin', 'member', 'tim_it');default:'member'"`
+}
 
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
+type Role string
+
+const (
+	RoleSuperAdmin Role = "super_admin"
+	RoleAdmin      Role = "admin"
+	RoleMember     Role = "member"
+	RoleIT         Role = "tim_it"
 )
 
-// User - model untuk user
-type User struct {
-	ID   uint   `gorm:"primaryKey;autoIncrement:true"`
-	Role string `json:"role"`
-	Code string `json:"code"`
-}
-
-// GenerateJWT - generate token JWT untuk user
-func (u *User) GenerateJWT() (string, error) {
-	if u.ID == 0 || u.Role == "" {
-		return "", errors.New("invalid user data for token generation")
+func (r Role) IsValid() bool {
+	switch r {
+	case RoleSuperAdmin, RoleAdmin, RoleMember, RoleIT:
+		return true
+	default:
+		return false
 	}
-	return token.GenerateToken(u.ID, u.Role)
-}
-
-// LoginCheckAdmin - verifikasi kode admin
-func (u *User) LoginCheckAdmin(db *gorm.DB) (string, error) {
-	var admin User
-	if err := db.Where("code = ?", u.Code).First(&admin).Error; err != nil {
-		return "", errors.New("admin not found")
-	}
-
-	// Validasi kode dengan bcrypt
-	if err := bcrypt.CompareHashAndPassword([]byte(admin.Code), []byte(u.Code)); err != nil {
-		return "", errors.New("invalid code")
-	}
-
-	// Generate token JWT
-	return admin.GenerateJWT()
 }

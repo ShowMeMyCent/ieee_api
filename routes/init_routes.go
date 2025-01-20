@@ -25,10 +25,11 @@ func InitRouter(db *gorm.DB) *gin.Engine {
 
 	// Jika bukan GET , Cek token dulu
 
-	RegisterAuthRoutes(r, db)
+	RegisterAuthRouts(r, db)
 	RegisterActivityRoutes(r, db)
 	RegisterNewsRoutes(r, db)
 	RegisterAchievementRoutes(r, db)
+	RegisterUserRoutes(r, db)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("/swagger/doc.json")))
 	r.Static("/uploads", "./uploads")

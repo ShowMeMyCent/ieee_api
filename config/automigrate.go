@@ -13,6 +13,7 @@ func AutoMigrate(db *gorm.DB) {
 		&models.Achievement{},
 		&models.Activities{},
 		&models.News{},
+		//&models.User{},
 		&models.User{},
 	)
 	if err != nil {
